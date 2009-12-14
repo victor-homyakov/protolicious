@@ -344,10 +344,16 @@ document.delegate = Element.Methods.delegate.curry(document);
  **/
 Element.Methods.fillDocument = function(element) {
   element = $(element);
-  var vpDim = document.viewport.getDimensions();
-  var docDim = $(document.documentElement).getDimensions();
+  var de = document.documentElement, vpDim = document.viewport.getDimensions(), docDim = $(de).getDimensions();
   element.style.width = Math.max(docDim.width, vpDim.width) + 'px';
-  element.style.height = Math.max(docDim.height, vpDim.height) + 'px';
+  if (Prototype.Browser.IE) {
+    // maybe additional check for (!d.compatMode || d.compatMode == "CSS1Compat")?
+    // tested in IE 6,7,8 for d.compatMode == "CSS1Compat"
+    element.style.height = de.scrollHeight + 'px';
+  } else {
+    // clientHeight in Opera 9.64,10 for short documents
+    element.style.height = Math.max(Math.max(docDim.height, vpDim.height), de.clientHeight) + 'px';
+  }
   return element;
 };
 
